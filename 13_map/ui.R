@@ -1,0 +1,3 @@
+fluidPage(
+  leafletOutput("map1")
+  )

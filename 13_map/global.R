@@ -1,0 +1,144 @@
+library(RColorBrewer)
+library(rgdal)
+library(leaflet)
+# library(shiny)
+
+# setwd("C:/Users/Giorgia Cecchinato/Desktop/R/Shiny")
+
+africa <- readOGR(".", "Africa4")
+
+
+#change names, make numeric and make adjustments (can't use loop with spatial polygons)
+
+africa$Africa_r_1 <- as.numeric(as.character(africa$Africa_r_1))
+africa$Africa_r_2 <- as.numeric(as.character(africa$Africa_r_2))
+africa$Africa_r_3 <- as.numeric(as.character(africa$Africa_r_3))
+africa$Africa_r_4 <- as.numeric(as.character(africa$Africa_r_4))
+africa$Africa_res <- as.numeric(as.character(africa$Africa_res))
+africa$Africa_r20 <- as.numeric(as.character(africa$Africa_r20))
+
+africa$Africa_r10 <- as.character(africa$Africa_r10)
+africa$Africa_r10<- as.numeric(substr(africa$Africa_r10,0,nchar(africa$Africa_r10)-1))
+africa$Africa_r10<- africa$Africa_r10/100
+
+africa$Africa_r11 <- as.character(africa$Africa_r11)
+africa$Africa_r11 <- as.numeric(substr(africa$Africa_r11,0,nchar(africa$Africa_r11)-1))
+africa$Africa_r11 <- africa$Africa_r11/100
+
+
+africa$Africa_r12 <- as.character(africa$Africa_r12)
+africa$Africa_r12 <- as.numeric(substr(africa$Africa_r12,0,nchar(africa$Africa_r12)-1))
+africa$Africa_r12 <- africa$Africa_r12/100
+
+
+africa$Africa_r13 <- as.character(africa$Africa_r13)
+africa$Africa_r13 <- as.numeric(substr(africa$Africa_r13,0,nchar(africa$Africa_r13)-1))
+africa$Africa_r13 <- africa$Africa_r13/100
+
+
+africa$Africa_r14 <- as.character(africa$Africa_r14)
+africa$Africa_r14 <- as.numeric(substr(africa$Africa_r14,0,nchar(africa$Africa_r14)-1))
+africa$Africa_r14 <- africa$Africa_r14/100
+
+africa$Africa_r15[africa$Africa_r15 == "-"] <- NA
+africa$Africa_r16[africa$Africa_r16 == "-"] <- NA
+africa$Africa_r17[africa$Africa_r17 == "-"] <- NA
+africa$Africa_r18[africa$Africa_r18 == "-"] <- NA
+africa$Africa_r19[africa$Africa_r19 == "-"] <- NA
+
+
+#Prepare palettes and map popups
+pal <- colorQuantile("YlGn", NULL, n = 5)
+pal2 <- colorFactor("RdPu", NULL, n = 5)
+
+state_popupIMF <- paste0("<strong>State: </strong>", 
+                      africa$COUNTRY, 
+                      "<br><strong>Resource Revenue (%GDP): </strong>", 
+                      africa$Africa_r15)
+
+state_popupEITIg <- paste0("<strong>State: </strong>", 
+                         africa$COUNTRY, 
+                         "<br><strong>Resource Revenue (%GDP): </strong>", 
+                         africa$Africa_r16)
+
+state_popupEITIc <- paste0("<strong>State: </strong>", 
+                         africa$COUNTRY, 
+                         "<br><strong>Resource Revenue (%GDP): </strong>", 
+                         africa$Africa_r17)
+
+state_popupICTD <- paste0("<strong>State: </strong>", 
+                         africa$COUNTRY, 
+                         "<br><strong>Resource Revenue (%GDP): </strong>", 
+                         africa$Africa_r18)
+
+state_popupAverage <- paste0("<strong>State: </strong>", 
+                         africa$COUNTRY, 
+                         "<br><strong>Resource Revenue (%GDP): </strong>", 
+                         africa$Africa_r19)
+
+leaflet_africa <- leaflet(data = africa) %>%
+ 
+  
+  
+  #Add Base Tiles
+  addProviderTiles("OpenStreetMap.Mapnik") %>%
+  
+  setView(10,30, zoom = 3) %>% 
+  
+  
+  
+  #Add Polygons
+  addPolygons(fillColor = ~pal(Africa_r10), 
+              fillOpacity = 0.8,
+              color = "#BDBDC3", 
+              weight = 1, 
+              popup = state_popupIMF,
+              group = "IMF") %>%
+  addPolygons(fillColor = ~pal(Africa_r11), 
+            fillOpacity = 0.8, 
+            color = "#BDBDC3", 
+            weight = 1,
+            popup = state_popupEITIg,
+            group = "EITI (government)") %>%
+  addPolygons(fillColor = ~pal(Africa_r12), 
+              fillOpacity = 0.8, 
+              color = "#BDBDC3", 
+              weight = 1,
+              popup = state_popupEITIc,
+              group = "EITI (companies)") %>%
+  addPolygons(fillColor = ~pal(Africa_r13), 
+              fillOpacity = 0.8, 
+              color = "#BDBDC3", 
+              weight = 1,
+              popup = state_popupICTD,
+              group = "ICTD") %>%
+  
+  addPolygons(fillColor = ~pal(Africa_r14), 
+              fillOpacity = 0.8, 
+              color = "#BDBDC3", 
+              weight = 1,
+              popup = state_popupAverage,
+              group = "Average existing") %>%
+  
+
+  #Layers Control
+  addLayersControl(
+    baseGroups = c("IMF", "EITI (government)", "EITI (companies)", "ICTD", "Average existing"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) 
+
+# ui <- fluidPage(
+#   leafletOutput("map1")
+#   )
+
+
+# server <- function(input, output, session) {
+  
+#   output$map1 <- renderLeaflet({
+#     leaflet_africa
+#   })
+# }
+
+# shinyApp(ui = ui, server = server)
+
+
